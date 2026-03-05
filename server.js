@@ -54,8 +54,8 @@ app.post('/chat', async (req, res) => {
       res.status(500).json({ error: 'Sin respuesta de la IA' });
     }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('ERROR DETALLADO:', err.message, JSON.stringify(err));
+    res.status(500).json({ error: err.message });
   }
 });
 
