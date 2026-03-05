@@ -7,7 +7,7 @@ app.use(express.json());
 // Permite requests desde tu landing en Vercel
 // Cambiá esto por tu URL real de Vercel cuando la tengas
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || '*'
+  origin: '*'
 }));
 
 const SYSTEM_PROMPT = `Sos el asistente virtual de SG Impresiones 3D, un negocio de impresión 3D ubicado en Paraná, Entre Ríos, Argentina. Tu handle de Instagram es @sg_impresiones3d.
