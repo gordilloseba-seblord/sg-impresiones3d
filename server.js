@@ -70,5 +70,15 @@ app.post('/chat', async (req, res) => {
 app.get('/', (req, res) => res.json({ status: 'ok', service: 'SG Chat API' }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Servidor corriendo en puerto ' + PORT));
+const server = app.listen(PORT, () => console.log('Servidor corriendo en puerto ' + PORT));
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log('Puerto ocupado, reintentando en 3 segundos...');
+    setTimeout(() => {
+      server.close();
+      server.listen(PORT);
+    }, 3000);
+  }
+});
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
