@@ -3,7 +3,6 @@ const cors = require('cors');
 
 const app = express();
 
-// CORS debe ir antes de todo
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -36,32 +35,33 @@ app.post('/chat', async (req, res) => {
     return res.status(400).json({ error: 'Faltan mensajes' });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.log('ERROR: ANTHROPIC_API_KEY no configurada');
+  if (!process.env.GROQ_API_KEY) {
+    console.log('ERROR: GROQ_API_KEY no configurada');
     return res.status(500).json({ error: 'API key no configurada' });
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'llama-3.1-8b-instant',
         max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...messages
+        ]
       })
     });
 
     const data = await response.json();
-    console.log('Respuesta Anthropic:', JSON.stringify(data));
+    console.log('Respuesta Groq:', JSON.stringify(data));
 
-    if (data.content && data.content[0]) {
-      res.json({ reply: data.content[0].text });
+    if (data.choices && data.choices[0]) {
+      res.json({ reply: data.choices[0].message.content });
     } else {
       res.status(500).json({ error: data.error?.message || 'Sin respuesta de la IA' });
     }
