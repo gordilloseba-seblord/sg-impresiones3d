@@ -2,9 +2,17 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-app.use(express.json());
 
-app.use(cors({ origin: '*' }));
+// CORS debe ir antes de todo
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+app.use(express.json());
 
 const SYSTEM_PROMPT = `Sos el asistente virtual de SG Impresiones 3D, un negocio de impresión 3D ubicado en Paraná, Entre Ríos, Argentina. Tu handle de Instagram es @sg_impresiones3d.
 
@@ -25,18 +33,15 @@ app.post('/chat', async (req, res) => {
   console.log('Pedido recibido:', JSON.stringify(messages));
 
   if (!messages || !Array.isArray(messages)) {
-    console.log('ERROR: Faltan mensajes');
     return res.status(400).json({ error: 'Faltan mensajes' });
   }
 
   if (!process.env.ANTHROPIC_API_KEY) {
-    console.log('ERROR: ANTHROPIC_API_KEY no esta configurada');
+    console.log('ERROR: ANTHROPIC_API_KEY no configurada');
     return res.status(500).json({ error: 'API key no configurada' });
   }
 
   try {
-    console.log('Usando API key:', process.env.ANTHROPIC_API_KEY.slice(0, 16) + '...');
-
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -53,16 +58,15 @@ app.post('/chat', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log('Respuesta de Anthropic:', JSON.stringify(data));
+    console.log('Respuesta Anthropic:', JSON.stringify(data));
 
     if (data.content && data.content[0]) {
       res.json({ reply: data.content[0].text });
     } else {
-      console.log('ERROR sin contenido:', JSON.stringify(data));
       res.status(500).json({ error: data.error?.message || 'Sin respuesta de la IA' });
     }
   } catch (err) {
-    console.error('ERROR al llamar a Anthropic:', err.message);
+    console.error('ERROR:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -74,11 +78,7 @@ const server = app.listen(PORT, () => console.log('Servidor corriendo en puerto 
 
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.log('Puerto ocupado, reintentando en 3 segundos...');
-    setTimeout(() => {
-      server.close();
-      server.listen(PORT);
-    }, 3000);
+    setTimeout(() => { server.close(); server.listen(PORT); }, 3000);
   }
 });
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+
