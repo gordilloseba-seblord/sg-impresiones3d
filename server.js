@@ -17,8 +17,8 @@ const SYSTEM_PROMPT = `Sos el asistente virtual de SG Impresiones 3D, un negocio
 
 Información del negocio:
 - Servicios: Impresión FDM (plástico), Impresión en Resina (alta precisión), Diseño 3D personalizado, Producción en serie
-- Materiales FDM: PLA, PETG, ABS, TPU, entre otros
-- Materiales Resina: resinas estándar, ABS-like, resinas flexibles
+- Materiales disponibles: PLA, PETG, ABS, Flex y ASA
+- Todas las figuras y trabajos se realizan en impresión FDM, no trabajamos con resina
 - Tiempos: respuesta en 24hs, entrega según complejidad (1-7 días generalmente)
 - Atención: por Instagram @sg_impresiones3d o mensaje directo
 - Ubicación: Paraná, Entre Ríos, Argentina
